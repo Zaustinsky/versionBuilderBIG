@@ -54,11 +54,11 @@ public class SubversionConnector {
         return svnObjects;
     }
 
-    public void storeFiles(Collection<SvnObject> objects, String folderName) throws SVNException, IOException {
+    public void storeFiles(Collection<SvnObject> objects, Path folder) throws SVNException, IOException {
         for (SvnObject object: objects) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             repository.getFile(object.path, -1L, null, baos);
-            Files.write(Path.of(folderName + "/" + object.path.substring(1 + object.path.lastIndexOf("/"))), baos.toByteArray());
+            Files.write(Path.of(folder + "/" + object.path.substring(1 + object.path.lastIndexOf("/"))), baos.toByteArray());
         }
 
     }

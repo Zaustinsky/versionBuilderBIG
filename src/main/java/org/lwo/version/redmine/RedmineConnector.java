@@ -24,19 +24,15 @@ public class RedmineConnector {
     Integer queryId = null; // any
 
 
-    public List<Issue> getChangesetsByIssueIds(Set<Integer> issuesIds) throws RedmineException {
-        List<Issue> issues = getIssues(issuesIds);
-
-
-        return issues;
-        //.stream().flatMap(issue -> issue.getChangesets().stream()).collect(toSet());
+    public List<Issue> getIssuesByIds(Set<Integer> issuesIds) throws RedmineException {
+        return getIssues(issuesIds);
     }
 
     private List<Issue> getIssues(Set<Integer> issuesIds) throws RedmineException {
         RedmineManager issueManager = getRedmineManager();
         List<Issue> issues = new ArrayList<>();
         for (Integer id : issuesIds) {
-            Issue issueById = issueManager.getIssueManager().getIssueById(id, Include.changesets);
+            Issue issueById = issueManager.getIssueManager().getIssueById(id, Include.changesets, Include.journals);
             issues.add(issueById);
         }
         return issues;

@@ -9,6 +9,7 @@ import org.tmatesoft.svn.core.SVNException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -41,7 +42,8 @@ public class Cli {
         String version = cmd.getOptionValue("version");
         String issueIdsString = cmd.getOptionValue("issue");
 
-        Set<Integer> issueIds = Arrays.stream(issueIdsString.split(",")).map(Integer::valueOf).collect(Collectors.toSet());
+        Set<Integer> issueIds = Arrays.stream(issueIdsString.split(",")).map(Integer::valueOf)
+                .collect(Collectors.toCollection(TreeSet::new));
 
         log.info("Собираем версию {} по заявкам {}", version, issueIds);
 

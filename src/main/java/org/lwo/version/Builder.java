@@ -4,6 +4,7 @@ import com.taskadapter.redmineapi.RedmineException;
 import com.taskadapter.redmineapi.bean.Changeset;
 import com.taskadapter.redmineapi.bean.Issue;
 import lombok.extern.slf4j.Slf4j;
+import org.lwo.version.readme.ReadmeBuilder;
 import org.lwo.version.redmine.RedmineConnector;
 import org.lwo.version.svn.SubversionConnector;
 import org.lwo.version.svn.SvnObject;
@@ -23,11 +24,11 @@ public class Builder {
 
     static String mainFolder = "d:/versions";
 
-
     public static void main(String... arg) throws RedmineException, SVNException, IOException {
-        String version = "2.303.245.1";
-        //    Set<Integer> issueIds = Set.of(74974,69304);
-        Set<Integer> issueIds = Set.of(75435);
+        String version = "2.303.245.test";
+        Set<Integer> issueIds = new TreeSet<>(Collections.singleton(73718));
+//        Set<Integer> issueIds = new TreeSet<>(List.of(61954, 63312, 73672, 73676, 73827, 73940, 74104, 74170, 74205, 74229, 75019, 75246, 75435, 60997, 61316, 65114, 67989, 74845));
+//        Set<Integer> issueIds = Set.of(40598,61187,64572,67550,67762,69233,72163,76423);
         buildVersion(version, issueIds);
     }
 
@@ -37,7 +38,7 @@ public class Builder {
         SubversionConnector subversionConnector = new SubversionConnector();
 
         log.info("------ Берем заявки из редмайна");
-        List<Issue> redmineIssues = new RedmineConnector().getChangesetsByIssueIds(issueIds);
+        List<Issue> redmineIssues = new RedmineConnector().getIssuesByIds(issueIds);
         log.info("------ Взяли заявки из редмайна. Получено {} заявок из {}.", redmineIssues.size(), issueIds.size());
 
 
@@ -55,18 +56,22 @@ public class Builder {
         log.info("------ Уникальных объектов {}", uniqueObjects.size());
         uniqueObjects.forEach(o -> log.info("{} {} {} {}", o.getRevisionDiff(), o.getLatestRevision(), o.getRevision(), o.getPath()));
 
+        Path objFolder = createFolders(version);
+        new ReadmeBuilder().createReadmeFile(redmineIssues, version, objFolder);
+        saveFiles(objFolder, subversionConnector, uniqueObjects);
+    }
+
+    public static void saveFiles(Path objFolder, SubversionConnector subversionConnector, Collection<SvnObject> uniqueObjects) throws IOException, SVNException {
+        subversionConnector.storeFiles(uniqueObjects, objFolder);
+        log.info("------ Версия сохранена в {}", objFolder);
+    }
+
+    private static Path createFolders(String version) throws IOException {
         String versionFolder = mainFolder + "/" + version;
         String objFolder = versionFolder + "/obj";
         Files.createDirectory(Path.of(versionFolder));
-        Files.createDirectory(Path.of(objFolder));
         log.info("------ Сохраняем файлы в {}", objFolder);
-        subversionConnector.storeFiles(uniqueObjects, objFolder);
-        log.info("------ Версия сохранена в {}", objFolder);
-
-        //todo the latest revision check
-        // Homework
-        //todo functions ????
-        //todo two catalogs - one for actual revisions second for the latest
+        return Files.createDirectory(Path.of(objFolder));
     }
 
     private static Collection<SvnObject> filterUniqueObjects(List<SvnObject> versionSvnObjects) {
