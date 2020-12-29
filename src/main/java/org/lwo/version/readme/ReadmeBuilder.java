@@ -30,15 +30,17 @@ public class ReadmeBuilder {
 
     public void createReadmeFile(List<Issue> redmineIssues, String version, Path objFolder) throws IOException {
         log.info("------ Генерация readme.txt");
+        log.info("");
 
         List<String> comments = getAndFormatLastComment(redmineIssues);
 
         String date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
         final String header = String.format(HEADER_FORMAT, version, date);
+        log.info("");
 
         StringBuilder builder = new StringBuilder(header);
         comments.forEach(builder::append);
-        log.info(builder.toString());
+        log.info("\n" + builder.toString());
         Files.write(Path.of(objFolder.toString() + "/read.LBRUS.txt"), builder.toString().getBytes());
         log.info("------ readme.txt готов");
 
@@ -48,7 +50,7 @@ public class ReadmeBuilder {
         return redmineIssues.stream().map(
                 issue -> {
                     StringBuilder result = new StringBuilder();
-                    result.append("\n\n\n")
+                    result.append("\n\n\n\n\n")
                             .append(getFunctionalComplexName(issue))
                             .append(" ")
                             .append(String.format("(Заявка #%s)", issue.getId()))
@@ -56,7 +58,7 @@ public class ReadmeBuilder {
                             .append(delimiter)
                             .append("\n")
                             .append(getLastComment(issue))
-                            .append("\n")
+                            .append("\n\n\n")
                             .append("Бизнес-аналитик: ")
                             .append(internalProjects.contains(issue.getProjectName()) ? issue.getAuthorName() : "нет");
                     return result.toString();

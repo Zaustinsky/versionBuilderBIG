@@ -26,9 +26,9 @@ public class Builder {
 
     public static void main(String... arg) throws RedmineException, SVNException, IOException {
         String version = "2.303.245.test";
-        Set<Integer> issueIds = new TreeSet<>(Collections.singleton(73718));
+//        Set<Integer> issueIds = new TreeSet<>(Collections.singleton(73718));
 //        Set<Integer> issueIds = new TreeSet<>(List.of(61954, 63312, 73672, 73676, 73827, 73940, 74104, 74170, 74205, 74229, 75019, 75246, 75435, 60997, 61316, 65114, 67989, 74845));
-//        Set<Integer> issueIds = Set.of(40598,61187,64572,67550,67762,69233,72163,76423);
+       Set<Integer> issueIds = Set.of(73925,75908,76517);
         buildVersion(version, issueIds);
     }
 
@@ -45,6 +45,7 @@ public class Builder {
         log.info("------ Берем данные о ревизиях из SVN");
         List<SvnObject> versionSvnObjects = new ArrayList<>();
         for (Issue issue : redmineIssues) {
+            log.info("");
             log.info("Задача id={} Статус={} Назначена={} Тема={}", issue.getId(), issue.getStatusName(), issue.getAssigneeName(), issue.getSubject());
             List<Long> revisionIds = getRevisionIdsFromIssue(issue);
             List<SvnObject> issueSvnObjects = subversionConnector.readObjects(revisionIds);
@@ -53,7 +54,9 @@ public class Builder {
         log.info("------ Всего {} объектов собрано. Отбираем уникальные с последней ревизией по всем заявкам", versionSvnObjects.size());
 
         Collection<SvnObject> uniqueObjects = filterUniqueObjects(versionSvnObjects);
+        log.info("");
         log.info("------ Уникальных объектов {}", uniqueObjects.size());
+        log.info("");
         uniqueObjects.forEach(o -> log.info("{} {} {} {}", o.getRevisionDiff(), o.getLatestRevision(), o.getRevision(), o.getPath()));
 
         Path objFolder = createFolders(version);
@@ -71,6 +74,7 @@ public class Builder {
         String objFolder = versionFolder + "/obj";
         Files.createDirectory(Path.of(versionFolder));
         log.info("------ Сохраняем файлы в {}", objFolder);
+        log.info("");
         return Files.createDirectory(Path.of(objFolder));
     }
 
