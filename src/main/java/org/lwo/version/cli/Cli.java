@@ -42,8 +42,13 @@ public class Cli {
         String version = cmd.getOptionValue("version");
         String issueIdsString = cmd.getOptionValue("issue");
 
-        Set<Integer> issueIds = Arrays.stream(issueIdsString.split(",")).map(Integer::valueOf)
-                .collect(Collectors.toCollection(TreeSet::new));
+        Set<Integer> issueIds;
+        if (issueIdsString == null || "".equals(issueIdsString)) {
+            issueIds = Set.of();
+        } else {
+            issueIds = Arrays.stream(issueIdsString.split(",")).map(Integer::valueOf)
+                    .collect(Collectors.toCollection(TreeSet::new));
+        }
 
         log.info("Собираем версию {} по заявкам {}", version, issueIds);
 
