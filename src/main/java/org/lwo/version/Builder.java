@@ -25,22 +25,34 @@ public class Builder {
     static String mainFolder = "d:/versions";
 
     public static void main(String... arg) throws RedmineException, SVNException, IOException {
-        String version = "2.303.245.test";
+        String versionId = "3998";
 //        Set<Integer> issueIds = new TreeSet<>(Collections.singleton(73718));
 //        Set<Integer> issueIds = new TreeSet<>(List.of(61954, 63312, 73672, 73676, 73827, 73940, 74104, 74170, 74205, 74229, 75019, 75246, 75435, 60997, 61316, 65114, 67989, 74845));
-       Set<Integer> issueIds = Set.of(73925,75908,76517);
-        buildVersion(version, issueIds);
+        Set<Integer> issueIds = Set.of();
+        buildVersion(versionId, issueIds);
     }
 
-    public static void buildVersion(String version, Set<Integer> issueIds) throws SVNException, RedmineException, IOException {
+    public static void buildVersion(String versionId, Set<Integer> issueIds) throws SVNException, RedmineException, IOException {
         Security.setProperty("jdk.tls.disabledAlgorithms", "SSLv3, RC4, DH keySize < 1024, EC keySize < 224, DES40_CBC, RC4_40, 3DES_EDE_CBC");
         Security.setProperty("jdk.certpath.disabledAlgorithms", "MD2, SHA1 jdkCA & usage TLSServer, RSA keySize < 1024, DSA keySize < 1024, EC keySize < 224");
         SubversionConnector subversionConnector = new SubversionConnector();
 
-        log.info("------ Берем заявки из редмайна");
-        List<Issue> redmineIssues = new RedmineConnector().getIssuesByIds(issueIds);
-        log.info("------ Взяли заявки из редмайна. Получено {} заявок из {}.", redmineIssues.size(), issueIds.size());
-
+        List<Issue> redmineIssues;
+        String versionName;
+        if (issueIds == null || issueIds.isEmpty()) {
+            log.info("------ Берем заявки из редмайна по версии id={}", versionId);
+            redmineIssues = new RedmineConnector().getIssuesByVersion(versionId);
+            if (redmineIssues.size() == 0) {
+                log.info("------ Нет заявок. Проверь id версии");
+                return;
+            }
+            versionName = redmineIssues.get(0).getTargetVersion().getName();
+        } else {
+            log.info("------ Берем заявки из редмайна по списку заявок {}", issueIds);
+            redmineIssues = new RedmineConnector().getIssuesByIds(issueIds);
+            versionName = versionId;
+        }
+        log.info("------ Взяли заявки из редмайна. Получено {} заявок.", redmineIssues.size());
 
         log.info("------ Берем данные о ревизиях из SVN");
         List<SvnObject> versionSvnObjects = new ArrayList<>();
@@ -59,8 +71,8 @@ public class Builder {
         log.info("");
         uniqueObjects.forEach(o -> log.info("{} {} {} {}", o.getRevisionDiff(), o.getLatestRevision(), o.getRevision(), o.getPath()));
 
-        Path objFolder = createFolders(version);
-        new ReadmeBuilder().createReadmeFile(redmineIssues, version, objFolder);
+        Path objFolder = createFolders(versionName);
+        new ReadmeBuilder().createReadmeFile(redmineIssues, versionName, objFolder);
         saveFiles(objFolder, subversionConnector, uniqueObjects);
     }
 
