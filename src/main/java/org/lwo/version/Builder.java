@@ -1,6 +1,7 @@
 package org.lwo.version;
 
 import com.taskadapter.redmineapi.RedmineException;
+import com.taskadapter.redmineapi.bean.Attachment;
 import com.taskadapter.redmineapi.bean.Changeset;
 import com.taskadapter.redmineapi.bean.Issue;
 import lombok.extern.slf4j.Slf4j;
@@ -26,9 +27,8 @@ public class Builder {
 
     public static void main(String... arg) throws RedmineException, SVNException, IOException {
         String versionId = "3998";
-//        Set<Integer> issueIds = new TreeSet<>(Collections.singleton(73718));
-//        Set<Integer> issueIds = new TreeSet<>(List.of(61954, 63312, 73672, 73676, 73827, 73940, 74104, 74170, 74205, 74229, 75019, 75246, 75435, 60997, 61316, 65114, 67989, 74845));
-        Set<Integer> issueIds = Set.of();
+  //       Set<Integer> issueIds = new TreeSet<>(List.of(61954, 63312, 73672, 73676, 73827, 73940, 74104, 74170, 74205, 74229, 75019, 75246, 75435, 60997, 61316, 65114, 67989, 74845));
+        Set<Integer> issueIds = Set.of(74705);
         buildVersion(versionId, issueIds);
     }
 
@@ -39,9 +39,10 @@ public class Builder {
 
         List<Issue> redmineIssues;
         String versionName;
+        RedmineConnector redmineConnector = new RedmineConnector();
         if (issueIds == null || issueIds.isEmpty()) {
             log.info("------ Берем заявки из редмайна по версии id={}", versionId);
-            redmineIssues = new RedmineConnector().getIssuesByVersion(versionId);
+            redmineIssues = redmineConnector.getIssuesByVersion(versionId);
             if (redmineIssues.size() == 0) {
                 log.info("------ Нет заявок. Проверь id версии");
                 return;
@@ -49,10 +50,14 @@ public class Builder {
             versionName = redmineIssues.get(0).getTargetVersion().getName();
         } else {
             log.info("------ Берем заявки из редмайна по списку заявок {}", issueIds);
-            redmineIssues = new RedmineConnector().getIssuesByIds(issueIds);
+            redmineIssues = redmineConnector.getIssuesByIds(issueIds);
             versionName = versionId;
         }
         log.info("------ Взяли заявки из редмайна. Получено {} заявок.", redmineIssues.size());
+        log.info("------ Берем прикрепленные файлы.");
+        List<Attachment> attachments = redmineConnector.getXmlAttachments(redmineIssues);
+        //todo save to file on local folder
+        log.info("------ Формы, справочники, константы: {}", attachments);
 
         log.info("------ Берем данные о ревизиях из SVN");
         List<SvnObject> versionSvnObjects = new ArrayList<>();

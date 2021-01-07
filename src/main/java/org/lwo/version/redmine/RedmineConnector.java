@@ -1,17 +1,14 @@
 package org.lwo.version.redmine;
 
 import com.taskadapter.redmineapi.*;
-import com.taskadapter.redmineapi.bean.Changeset;
+import com.taskadapter.redmineapi.bean.Attachment;
 import com.taskadapter.redmineapi.bean.Issue;
-import com.taskadapter.redmineapi.bean.Version;
 import com.taskadapter.redmineapi.internal.ResultsWrapper;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -43,11 +40,28 @@ public class RedmineConnector {
         return getIssues(issuesIds);
     }
 
+    public List<Attachment> getXmlAttachments(List<Issue> issues) {
+        List<Attachment> attachments = new ArrayList<>();
+        for (Issue issue : issues) {
+            for (Attachment attach: issue.getAttachments()) {
+                String fileName = attach.getFileName();
+                boolean endsWith = fileName.endsWith(".xml");
+                if (endsWith == true) {
+                    log.info(fileName);
+                    attachments.add(attach);
+                }
+
+            }
+        }
+        return attachments;
+    }
+
     private List<Issue> getIssues(Set<Integer> issuesIds) throws RedmineException {
         RedmineManager issueManager = getRedmineManager();
         List<Issue> issues = new ArrayList<>();
         for (Integer id : issuesIds) {
-            Issue issueById = issueManager.getIssueManager().getIssueById(id, Include.changesets, Include.journals);
+            Issue issueById = issueManager.getIssueManager().getIssueById(id, Include.changesets,
+                    Include.journals, Include.attachments);
             issues.add(issueById);
         }
         return issues;
