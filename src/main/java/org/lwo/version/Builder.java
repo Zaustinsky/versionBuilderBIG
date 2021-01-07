@@ -54,10 +54,10 @@ public class Builder {
             versionName = versionId;
         }
         log.info("------ Взяли заявки из редмайна. Получено {} заявок.", redmineIssues.size());
-        log.info("------ Берем прикрепленные файлы.");
+        log.info("------ Берем прикрепленные файлы: функции, роли, константы.");
         List<Attachment> attachments = redmineConnector.getXmlAttachments(redmineIssues);
         //todo save to file on local folder
-        log.info("------ Формы, справочники, константы: {}", attachments);
+        log.info("------ Функции, роли, константы: {}", attachments);
 
         log.info("------ Берем данные о ревизиях из SVN");
         List<SvnObject> versionSvnObjects = new ArrayList<>();
