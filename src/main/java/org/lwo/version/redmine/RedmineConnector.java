@@ -48,6 +48,7 @@ public class RedmineConnector {
                 boolean endsWith = fileName.endsWith(".xml");
                 if (endsWith == true) {
                     log.info(fileName);
+                    log.info(String.valueOf(issue));
                     attachments.add(attach);
                 }
 
