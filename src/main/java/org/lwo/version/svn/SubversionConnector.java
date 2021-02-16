@@ -1,5 +1,6 @@
 package org.lwo.version.svn;
 
+import com.taskadapter.redmineapi.bean.Attachment;
 import lombok.extern.slf4j.Slf4j;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNLogEntry;
@@ -42,19 +43,39 @@ public class SubversionConnector {
                 for (Map.Entry<String, SVNLogEntryPath> e : entry.getChangedPaths().entrySet()) {
                     String key = e.getKey();
                     if (key.startsWith("/Belinkasgroup/branches")) continue;
-                    SVNLogEntryPath path = e.getValue();
-                    Collection<SVNFileRevision> fileRevisions = repository.getFileRevisions(key, null, revision, latestRevision);
-                    Long latest = fileRevisions.stream().skip(fileRevisions.size() - 1).findFirst().map(SVNFileRevision::getRevision).orElse(revision);
-                    log.info("{} Ревизия->{} Последняя={} Объект={}", latest-revision, entry.getRevision(), latest, key);
-                    SvnObject svnObject = new SvnObject(key, revision, latest);
-                    svnObjects.add(svnObject);
+                    if (key.startsWith("/Belinkasgroup/api")) continue;
+                    if (key.startsWith("/Belinkasgroup/application")) continue;
+                    if (key.startsWith("/Belinkasgroup/jar")) continue;
+                    if (key.startsWith("/Belinkasgroup/.svn")) continue;
+                    if (key.startsWith("/Belinkasgroup/web")) continue;
+                    if (key.startsWith("/Belinkasgroup/Документация")) continue;
+                    SvnObject svnObject = getSvnObject(latestRevision, revision, entry, key);
+                    if (svnObject != null) {
+                        svnObjects.add(svnObject);
+                    }
                 }
             }
         }
         return svnObjects;
     }
 
-    public void storeFiles(Collection<SvnObject> objects, Path folder) throws SVNException, IOException {
+    public SvnObject getSvnObject(long latestRevision, Long revision, SVNLogEntry entry, String key) throws SVNException {
+        try {
+            Collection<SVNFileRevision> fileRevisions = repository.getFileRevisions(key, null, revision, latestRevision);
+            Long latest = fileRevisions.stream().skip(fileRevisions.size() - 1).findFirst().map(SVNFileRevision::getRevision).orElse(revision);
+            log.info("{} Ревизия->{} Последняя={} Объект={}", latest - revision, entry.getRevision(), latest, key);
+            return new SvnObject(key, revision, latest);
+        } catch (SVNException e) {
+            if (e.getMessage()!=null && e.getMessage().contains("is not a file in revision")) {
+                log.warn("Ошибка получения объекта (удален?) Ревизии с {} по {} Объект={}", revision, latestRevision, key);
+                return null;
+            }
+            log.error("Ошибка получения объекта Ревизии с {} по {} Объект={}", revision, latestRevision, key, e);
+            throw e;
+        }
+    }
+
+    public void storeFiles(Collection<SvnObject> objects, List<Attachment> attachments, Path folder) throws SVNException, IOException {
         for (SvnObject object: objects) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             repository.getFile(object.path, -1L, null, baos);

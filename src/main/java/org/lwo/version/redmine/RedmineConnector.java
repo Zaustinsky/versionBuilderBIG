@@ -5,10 +5,16 @@ import com.taskadapter.redmineapi.bean.Attachment;
 import com.taskadapter.redmineapi.bean.Issue;
 import com.taskadapter.redmineapi.internal.ResultsWrapper;
 import lombok.extern.slf4j.Slf4j;
+import org.lwo.version.Builder;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -44,17 +50,24 @@ public class RedmineConnector {
         List<Attachment> attachments = new ArrayList<>();
         for (Issue issue : issues) {
             for (Attachment attach: issue.getAttachments()) {
-                String fileName = attach.getFileName();
-                boolean endsWith = fileName.endsWith(".xml");
+                String fileName = attach.getFileName().toLowerCase();
+                boolean endsWith = fileName.endsWith(".xml") || fileName.endsWith(".rar");
                 if (endsWith == true) {
                     log.info(fileName);
                     log.info(String.valueOf(issue));
                     attachments.add(attach);
                 }
-
             }
         }
         return attachments;
+    }
+    public static void saveAttachments(List<Attachment> attachments, Path folder) throws RedmineException, IOException {
+        for (Attachment object : attachments) {
+            String fileName = object.getFileName();
+            System.out.println((object) + "Ничего не вывелось" + fileName);
+           // Files.copy(Path.of(URI.create(object.getContentURL())), Path.of("d:/versions/3998/obj/" + fileName), StandardCopyOption.REPLACE_EXISTING);
+          //  Files.write(Path.of("d:/versions/3998/obj/" + fileName), Collections.singleton(object.getContentURL()));
+        }
     }
 
     private List<Issue> getIssues(Set<Integer> issuesIds) throws RedmineException {

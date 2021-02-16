@@ -11,6 +11,7 @@ import org.lwo.version.svn.SubversionConnector;
 import org.lwo.version.svn.SvnObject;
 import org.tmatesoft.svn.core.SVNException;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,9 +27,10 @@ public class Builder {
     static String mainFolder = "d:/versions";
 
     public static void main(String... arg) throws RedmineException, SVNException, IOException {
-        String versionId = "3998";
-  //       Set<Integer> issueIds = new TreeSet<>(List.of(61954, 63312, 73672, 73676, 73827, 73940, 74104, 74170, 74205, 74229, 75019, 75246, 75435, 60997, 61316, 65114, 67989, 74845));
-        Set<Integer> issueIds = Set.of(74705);
+        String versionId = "4273";
+     //   Set<Integer> issueIds = new TreeSet<>(List.of(61954, 63312, 73672, 73676, 73827, 73940, 74104, 74170, 74205, 74229, 75019, 75246, 75435, 60997, 61316, 65114, 67989, 74845));
+      //  Set<Integer> issueIds = Set.of(78703, 78764, 78770, 78839, 78878, 78897, 78922, 78994, 79069, 79109, 79240, 79304, 67730, 76867, 78008, 78340, 78530, 78871, 79006, 79067, 79072, 79091, 79198, 79536, 61238, 75866, 79223, 79384);
+       Set<Integer> issueIds = Set.of(72179);
         buildVersion(versionId, issueIds);
     }
 
@@ -56,6 +58,7 @@ public class Builder {
         log.info("------ Взяли заявки из редмайна. Получено {} заявок.", redmineIssues.size());
         log.info("------ Берем прикрепленные файлы: функции, роли, константы.");
         List<Attachment> attachments = redmineConnector.getXmlAttachments(redmineIssues);
+
         //todo save to file on local folder
         log.info("------ Функции, роли, константы: {}", attachments);
 
@@ -76,13 +79,16 @@ public class Builder {
         log.info("");
         uniqueObjects.forEach(o -> log.info("{} {} {} {}", o.getRevisionDiff(), o.getLatestRevision(), o.getRevision(), o.getPath()));
 
-        Path objFolder = createFolders(versionName);
-        new ReadmeBuilder().createReadmeFile(redmineIssues, versionName, objFolder);
-        saveFiles(objFolder, subversionConnector, uniqueObjects);
+       Path objFolder = createFolders(versionName);
+       new ReadmeBuilder().createReadmeFile(redmineIssues, versionName, objFolder);
+       saveFiles(objFolder, subversionConnector, uniqueObjects, attachments);
+
+       // RedmineConnector.saveAttachments(attachments, objFolder);
     }
 
-    public static void saveFiles(Path objFolder, SubversionConnector subversionConnector, Collection<SvnObject> uniqueObjects) throws IOException, SVNException {
-        subversionConnector.storeFiles(uniqueObjects, objFolder);
+
+    public static void saveFiles(Path objFolder, SubversionConnector subversionConnector, Collection<SvnObject> uniqueObjects, List<Attachment> attachments) throws IOException, SVNException, RedmineException {
+        subversionConnector.storeFiles(uniqueObjects, attachments, objFolder);
         log.info("------ Версия сохранена в {}", objFolder);
     }
 
