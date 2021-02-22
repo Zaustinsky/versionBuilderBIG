@@ -4,6 +4,7 @@ import com.taskadapter.redmineapi.*;
 import com.taskadapter.redmineapi.bean.Attachment;
 import com.taskadapter.redmineapi.bean.Issue;
 import com.taskadapter.redmineapi.internal.ResultsWrapper;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.lwo.version.Builder;
 
@@ -38,8 +39,15 @@ public class RedmineConnector {
                 .add("set_filter", "1")
                 .add("f[]", "fixed_version_id")
                 .add("op[fixed_version_id]", "=")
-                .add("v[fixed_version_id][]", versionId);
+                .add("v[fixed_version_id][]", versionId)
+                .add("limit", "100");
         ResultsWrapper<Issue> issues = redmineManager.getIssueManager().getIssues(params);
+
+        if (issues.getTotalFoundOnServer() > 100) {
+            log.error("!!!!!!Внимание!!!!! Заявок в версии больше чем лимит (25) !!!!!");
+            throw new RuntimeException();
+        }
+
         Set<Integer> issuesIds = issues.getResults().stream()
                 .map(Issue::getId)
                 .collect(toSet());
@@ -61,6 +69,12 @@ public class RedmineConnector {
         }
         return attachments;
     }
+
+    @SneakyThrows
+    public String getUserName(String userId) {
+        return getRedmineManager().getUserManager().getUserById(Integer.valueOf(userId)).getFullName();
+    }
+
     public static void saveAttachments(List<Attachment> attachments, Path folder) throws RedmineException, IOException {
         for (Attachment object : attachments) {
             String fileName = object.getFileName();

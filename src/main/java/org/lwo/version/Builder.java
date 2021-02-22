@@ -80,7 +80,7 @@ public class Builder {
         uniqueObjects.forEach(o -> log.info("{} {} {} {}", o.getRevisionDiff(), o.getLatestRevision(), o.getRevision(), o.getPath()));
 
        Path objFolder = createFolders(versionName);
-       new ReadmeBuilder().createReadmeFile(redmineIssues, versionName, objFolder);
+       new ReadmeBuilder(redmineConnector).createReadmeFile(redmineIssues, versionName, objFolder);
        saveFiles(objFolder, subversionConnector, uniqueObjects, attachments);
 
        // RedmineConnector.saveAttachments(attachments, objFolder);

@@ -3,22 +3,23 @@ package org.lwo.version.readme;
 import com.taskadapter.redmineapi.bean.CustomField;
 import com.taskadapter.redmineapi.bean.Issue;
 import com.taskadapter.redmineapi.bean.Journal;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.lwo.version.redmine.RedmineConnector;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
+@RequiredArgsConstructor
 public class ReadmeBuilder {
+    private final RedmineConnector redmineConnector;
+
     private final static String delimiter = "-----------------------------------";
     private static final String HEADER_FORMAT = """
             Версия %s от %s
@@ -60,13 +61,37 @@ public class ReadmeBuilder {
                             .append(getLastComment(issue))
                             .append("\n\n\n")
                             .append("Бизнес-аналитик: ")
-                            .append(internalProjects.contains(issue.getProjectName()) ? issue.getAuthorName() : "нет");
+                            .append(getBusinessAnalytic(issue));
                     return result.toString();
                 }
         ).collect(Collectors.toList());
     }
 
+    public Object getBusinessAnalytic(Issue issue) {
+        if (internalProjects.contains(issue.getProjectName())) {
+            return issue.getAuthorName();
+        }
+
+        CustomField businessAnalyst = issue.getCustomFieldByName("Бизнес-аналитик");
+        if (businessAnalyst != null && businessAnalyst.getValue() != null && !businessAnalyst.getValue().isEmpty()) {
+            return redmineConnector.getUserName(businessAnalyst.getValue());
+        }
+
+        return "нет";
+
+    }
+
+
     public String getLastComment(Issue issue) {
+        for (CustomField customField : issue.getCustomFields()) {
+            System.out.println(customField);
+            if (customField.getName().equals("Описание результата")) {
+                if (customField.getValue() != null && !customField.getValue().isEmpty()) {
+                    return customField.getValue();
+                }
+            }
+        }
+
         List<Journal> issueComments = issue.getJournals().stream()
                 .filter(journal -> journal.getNotes() != null && !journal.getNotes().isBlank())
                 .sorted(Comparator.comparing(journal -> journal.getCreatedOn().toInstant()))
