@@ -50,8 +50,12 @@ public class ReadmeBuilder {
     public List<String> getAndFormatLastComment(List<Issue> redmineIssues) {
         return redmineIssues.stream().map(
                 issue -> {
+
+                        if (!isIncludeDescription(issue)) {
+                            return "";
+                        }
                     StringBuilder result = new StringBuilder();
-                    result.append("\n\n\n\n\n")
+                    result.append("\n\n\n")
                             .append(getFunctionalComplexName(issue))
                             .append(" ")
                             .append(String.format("(Заявка #%s)", issue.getId()))
@@ -64,6 +68,7 @@ public class ReadmeBuilder {
                             .append(getBusinessAnalytic(issue));
                     return result.toString();
                 }
+
         ).collect(Collectors.toList());
     }
 
@@ -85,7 +90,7 @@ public class ReadmeBuilder {
     public String getLastComment(Issue issue) {
         for (CustomField customField : issue.getCustomFields()) {
             System.out.println(customField);
-            if (customField.getName().equals("Описание результата")) {
+            if ("Описание результата".equals(customField.getName())) {
                 if (customField.getValue() != null && !customField.getValue().isEmpty()) {
                     return customField.getValue();
                 }
@@ -111,5 +116,18 @@ public class ReadmeBuilder {
                 .map(CustomField::getValue)
                 .map(fk -> String.format("ФК \"%s\"", fk))
                 .findFirst().orElse("ФК \"\"");
+    }
+
+    public Boolean isIncludeDescription(Issue issue) {
+        for (CustomField customField : issue.getCustomFields()) {
+            if ("Включение в описание".equals(customField.getName())) {
+                if (customField.getValue() != null && !customField.getValue().isEmpty()) {
+                    if ("Не включать".equals(customField.getValue())) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 }
