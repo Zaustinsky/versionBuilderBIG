@@ -44,7 +44,7 @@ public class RedmineConnector {
         ResultsWrapper<Issue> issues = redmineManager.getIssueManager().getIssues(params);
 
         if (issues.getTotalFoundOnServer() > 100) {
-            log.error("!!!!!!Внимание!!!!! Заявок в версии больше чем лимит (25) !!!!!");
+            log.error("!!!!!!Внимание!!!!! Заявок в версии больше чем лимит (100) !!!!!");
             throw new RuntimeException();
         }
 

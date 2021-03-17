@@ -1,6 +1,8 @@
 package org.lwo.version.svn;
 
 import com.taskadapter.redmineapi.bean.Attachment;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNLogEntry;
@@ -22,11 +24,14 @@ import java.security.Security;
 import java.util.*;
 
 @Slf4j
+
 public class SubversionConnector {
     private final SVNRepository repository;
     private String url = "https://192.168.11.253";
     private String name = "zaustinsky_d";
     private String password = "Amenemhet1";
+    @Getter
+    private boolean copyJar = false;
 
     public SubversionConnector() throws SVNException {
         repository = initRepository();
@@ -42,7 +47,10 @@ public class SubversionConnector {
             for (SVNLogEntry entry : logEntries) {
                 for (Map.Entry<String, SVNLogEntryPath> e : entry.getChangedPaths().entrySet()) {
                     String key = e.getKey();
-                    if (key.startsWith("/Belinkasgroup/branches")) continue;
+                    if (key.startsWith("/Belinkasgroup/branches")) {
+                        copyJar = true;
+                        continue;
+                    }
                     if (key.startsWith("/Belinkasgroup/api")) continue;
                     if (key.startsWith("/Belinkasgroup/application")) continue;
                     if (key.startsWith("/Belinkasgroup/jar")) continue;
@@ -55,7 +63,9 @@ public class SubversionConnector {
                     }
                 }
             }
+
         }
+
         return svnObjects;
     }
 
@@ -66,7 +76,7 @@ public class SubversionConnector {
             log.info("{} Ревизия->{} Последняя={} Объект={}", latest - revision, entry.getRevision(), latest, key);
             return new SvnObject(key, revision, latest);
         } catch (SVNException e) {
-            if (e.getMessage()!=null && e.getMessage().contains("is not a file in revision")) {
+            if (e.getMessage() != null && e.getMessage().contains("is not a file in revision")) {
                 log.warn("Ошибка получения объекта (удален?) Ревизии с {} по {} Объект={}", revision, latestRevision, key);
                 return null;
             }
@@ -76,7 +86,7 @@ public class SubversionConnector {
     }
 
     public void storeFiles(Collection<SvnObject> objects, List<Attachment> attachments, Path folder) throws SVNException, IOException {
-        for (SvnObject object: objects) {
+        for (SvnObject object : objects) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             repository.getFile(object.path, -1L, null, baos);
             Files.write(Path.of(folder + "/" + object.path.substring(1 + object.path.lastIndexOf("/"))), baos.toByteArray());

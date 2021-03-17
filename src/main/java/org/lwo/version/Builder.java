@@ -7,6 +7,7 @@ import com.taskadapter.redmineapi.bean.Issue;
 import lombok.extern.slf4j.Slf4j;
 import org.lwo.version.readme.ReadmeBuilder;
 import org.lwo.version.redmine.RedmineConnector;
+import org.lwo.version.svn.JarUtils;
 import org.lwo.version.svn.SubversionConnector;
 import org.lwo.version.svn.SvnObject;
 import org.tmatesoft.svn.core.SVNException;
@@ -15,6 +16,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.security.Security;
 import java.util.*;
 import java.util.function.Predicate;
@@ -26,11 +29,13 @@ public class Builder {
 
     static String mainFolder = "d:/versions";
 
+
     public static void main(String... arg) throws RedmineException, SVNException, IOException {
-        String versionId = "4273";
-     //   Set<Integer> issueIds = new TreeSet<>(List.of(61954, 63312, 73672, 73676, 73827, 73940, 74104, 74170, 74205, 74229, 75019, 75246, 75435, 60997, 61316, 65114, 67989, 74845));
-      //  Set<Integer> issueIds = Set.of(78703, 78764, 78770, 78839, 78878, 78897, 78922, 78994, 79069, 79109, 79240, 79304, 67730, 76867, 78008, 78340, 78530, 78871, 79006, 79067, 79072, 79091, 79198, 79536, 61238, 75866, 79223, 79384);
-       Set<Integer> issueIds = Set.of(72179);
+        String versionId = "4535";
+        //   Set<Integer> issueIds = new TreeSet<>(List.of(61954, 63312, 73672, 73676, 73827, 73940, 74104, 74170, 74205, 74229, 75019, 75246, 75435, 60997, 61316, 65114, 67989, 74845));
+        //  Set<Integer> issueIds = Set.of(78703, 78764, 78770, 78839, 78878, 78897, 78922, 78994, 79069, 79109, 79240, 79304, 67730, 76867, 78008, 78340, 78530, 78871, 79006, 79067, 79072, 79091, 79198, 79536, 61238, 75866, 79223, 79384);
+//       Set<Integer> issueIds = Set.of(67768, 71205, 78409, 78604, 58580, 73533, 78047, 79112, 79204, 79388, 79493, 79502, 79890, 80128, 80142, 80421, 80538, 80573, 80689, 80706, 80807, 81055, 80246, 80871, 80735, 81020);
+        Set<Integer> issueIds = Set.of(72179);
         buildVersion(versionId, issueIds);
     }
 
@@ -79,11 +84,16 @@ public class Builder {
         log.info("");
         uniqueObjects.forEach(o -> log.info("{} {} {} {}", o.getRevisionDiff(), o.getLatestRevision(), o.getRevision(), o.getPath()));
 
-       Path objFolder = createFolders(versionName);
-       new ReadmeBuilder(redmineConnector).createReadmeFile(redmineIssues, versionName, objFolder);
-       saveFiles(objFolder, subversionConnector, uniqueObjects, attachments);
+        Path objFolder = createFolders(versionName);
+        new ReadmeBuilder(redmineConnector).createReadmeFile(redmineIssues, versionName, objFolder);
+        saveFiles(objFolder, subversionConnector, uniqueObjects, attachments);
 
-       // RedmineConnector.saveAttachments(attachments, objFolder);
+
+        if (subversionConnector.isCopyJar()) {
+            JarUtils.getJarFile(objFolder);
+        }
+
+        // RedmineConnector.saveAttachments(attachments, objFolder);
     }
 
 
@@ -128,4 +138,5 @@ public class Builder {
                 .map(Long::valueOf)
                 .collect(Collectors.toList());
     }
+
 }
