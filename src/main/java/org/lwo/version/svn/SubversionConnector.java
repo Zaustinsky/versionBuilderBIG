@@ -26,12 +26,10 @@ import java.util.*;
 @Slf4j
 
 public class SubversionConnector {
-    private final boolean separateFolders = true;
-
     private final SVNRepository repository;
-    private String url = "https://192.168.11.253";
-    private String name = "zaustinsky_d";
-    private String password = "Amenemhet1";
+    private final String url = "https://192.168.11.253";
+    private final String name = "zaustinsky_d";
+    private final String password = "Amenemhet1";
     @Getter
     private boolean copyJar = false;
 
@@ -98,15 +96,16 @@ public class SubversionConnector {
 
     public Path getFilePath(Path parentFolder, SvnObject object) throws IOException {
         String fileName = object.path.substring(1 + object.path.lastIndexOf("/"));
-        if (!separateFolders) {
-            return Path.of(parentFolder + "/" + fileName);
-        } else {
-            Path path = Path.of(parentFolder + "/" + object.type);
-            if (!path.toFile().exists()) {
-                Files.createDirectory(path);
-            }
-            return Path.of(parentFolder + "/" + object.type + "/" + fileName);
+        Path path = Path.of(parentFolder + "/" + object.type);
+        if (!path.toFile().exists()) {
+            Files.createDirectory(path);
         }
+
+        if (object.type == Type.SPRAV) {
+            return Path.of(parentFolder.getParent() + "/" + fileName);
+        }
+
+        return Path.of(parentFolder + "/" + object.type + "/" + fileName);
     }
 
     private SVNRepository initRepository() throws SVNException {

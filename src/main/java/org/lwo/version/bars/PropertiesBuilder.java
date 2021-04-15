@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
@@ -17,15 +18,13 @@ import java.util.stream.Collectors;
 public class PropertiesBuilder {
 
     public void buildProperties(String versionName, Path folder) throws IOException {
-
         SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-
         StringBuilder sb = new StringBuilder("PATCH_NUMBER=" + versionName + "\n" +
                                              "PATCH_TYPE=STANDART\n" +
                                              "WHOM_CREATE=Заустинский Дмитрий Иванович\n" +
                                              "WHEN_CREATE=" + df.format(new Date()) + "\n" +
-                                             "DESCRIPTION=См. файлы Read.LBRUS.BIG\n" +
-                                             "FULL_DESCRIPTION=См. файлы Read.LBRUS.BIG\n" +
+                                             "DESCRIPTION=См. файлы Read.LBRUS.txt\n" +
+                                             "FULL_DESCRIPTION=См. файлы Read.LBRUS.txt\n" +
                                              "#\n");
         var counter = 1;
 
@@ -44,11 +43,8 @@ public class PropertiesBuilder {
                     .append("\n");
         }
 
-
         Path propertiesFile = Path.of(folder + "/property-" + versionName + ".properties");
         Files.createFile(propertiesFile);
-        Files.write(propertiesFile, sb.toString().getBytes(), StandardOpenOption.WRITE);
-
-
+        Files.write(propertiesFile, sb.toString().getBytes("windows-1251"), StandardOpenOption.WRITE);
     }
 }

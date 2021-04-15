@@ -6,6 +6,7 @@ import com.taskadapter.redmineapi.bean.Changeset;
 import com.taskadapter.redmineapi.bean.Issue;
 import lombok.extern.slf4j.Slf4j;
 import org.lwo.version.bars.PropertiesBuilder;
+import org.lwo.version.bars.RtfBuilder;
 import org.lwo.version.bars.Zipper;
 import org.lwo.version.readme.ReadmeBuilder;
 import org.lwo.version.redmine.RedmineConnector;
@@ -15,6 +16,7 @@ import org.lwo.version.svn.SvnObject;
 import org.tmatesoft.svn.core.SVNException;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.Security;
@@ -94,7 +96,7 @@ public class Builder {
         new PropertiesBuilder().buildProperties(versionName, objFolder);
         log.info("properties файл готов. Зипуем");
         new Zipper().zip(versionName, objFolder);
-
+        new RtfBuilder().buildFromTemplate(versionName, objFolder);
 
     }
 
