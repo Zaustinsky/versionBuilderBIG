@@ -46,15 +46,16 @@ public class RtfBuilder {
                                 case "PACKAGE" -> "Пакет";
                                 case "FUNCTION" -> "Функции";
                                 case "SQL_AFTER" -> "SQL-скрипт ПОСЛЕ установки версии";
-                                case "Документация" -> "MANUAL";
+                                case "MANUAL" -> "Документация";
+                                case "JAR_FILE" -> "JAR-файл";
                                 default -> "";
                             }
                     )
                     .append(": ")
                     .append(file.getParentFile().getName())
-                    .append("\\")
+                    .append("\\\\")
                     .append(file.getName())
-                    .append("\\line");
+                    .append("\\line ");
         }
 
         String result = new String(rtf, "windows-1251")
