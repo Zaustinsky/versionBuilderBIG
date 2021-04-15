@@ -42,7 +42,8 @@ public class ReadmeBuilder {
         StringBuilder builder = new StringBuilder(header);
         comments.forEach(builder::append);
         log.info("\n" + builder.toString());
-        Files.write(Path.of(objFolder.toString() + "/Read.LBRUS.txt"), builder.toString().getBytes());
+        Path manualDirectory = Files.createDirectory(Path.of(objFolder + "/MANUAL"));
+        Files.write(Path.of(manualDirectory + "/Read.LBRUS.txt"), builder.toString().getBytes());
         log.info("------ readme.txt готов");
 
     }

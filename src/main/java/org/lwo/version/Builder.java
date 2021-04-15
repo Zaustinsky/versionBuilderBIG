@@ -5,6 +5,8 @@ import com.taskadapter.redmineapi.bean.Attachment;
 import com.taskadapter.redmineapi.bean.Changeset;
 import com.taskadapter.redmineapi.bean.Issue;
 import lombok.extern.slf4j.Slf4j;
+import org.lwo.version.bars.PropertiesBuilder;
+import org.lwo.version.bars.Zipper;
 import org.lwo.version.readme.ReadmeBuilder;
 import org.lwo.version.redmine.RedmineConnector;
 import org.lwo.version.svn.JarUtils;
@@ -12,12 +14,9 @@ import org.lwo.version.svn.SubversionConnector;
 import org.lwo.version.svn.SvnObject;
 import org.tmatesoft.svn.core.SVNException;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.security.Security;
 import java.util.*;
 import java.util.function.Predicate;
@@ -31,11 +30,11 @@ public class Builder {
 
 
     public static void main(String... arg) throws RedmineException, SVNException, IOException {
-        String versionId = "4535";
+        String versionId = "4746";
         //   Set<Integer> issueIds = new TreeSet<>(List.of(61954, 63312, 73672, 73676, 73827, 73940, 74104, 74170, 74205, 74229, 75019, 75246, 75435, 60997, 61316, 65114, 67989, 74845));
         //  Set<Integer> issueIds = Set.of(78703, 78764, 78770, 78839, 78878, 78897, 78922, 78994, 79069, 79109, 79240, 79304, 67730, 76867, 78008, 78340, 78530, 78871, 79006, 79067, 79072, 79091, 79198, 79536, 61238, 75866, 79223, 79384);
 //       Set<Integer> issueIds = Set.of(67768, 71205, 78409, 78604, 58580, 73533, 78047, 79112, 79204, 79388, 79493, 79502, 79890, 80128, 80142, 80421, 80538, 80573, 80689, 80706, 80807, 81055, 80246, 80871, 80735, 81020);
-        Set<Integer> issueIds = Set.of(82086, 82214, 81070);
+        Set<Integer> issueIds = Set.of();
         buildVersion(versionId, issueIds);
     }
 
@@ -88,17 +87,20 @@ public class Builder {
         new ReadmeBuilder(redmineConnector).createReadmeFile(redmineIssues, versionName, objFolder);
         saveFiles(objFolder, subversionConnector, uniqueObjects, attachments);
 
-
         if (subversionConnector.isCopyJar()) {
             JarUtils.getJarFile(objFolder);
         }
 
-        // RedmineConnector.saveAttachments(attachments, objFolder);
+        new PropertiesBuilder().buildProperties(versionName, objFolder);
+        log.info("properties файл готов. Зипуем");
+        new Zipper().zip(versionName, objFolder);
+
+
     }
 
 
     public static void saveFiles(Path objFolder, SubversionConnector subversionConnector, Collection<SvnObject> uniqueObjects, List<Attachment> attachments) throws IOException, SVNException, RedmineException {
-        subversionConnector.storeFiles(uniqueObjects, attachments, objFolder);
+        subversionConnector.storeFiles(uniqueObjects, objFolder);
         log.info("------ Версия сохранена в {}", objFolder);
     }
 
@@ -123,9 +125,7 @@ public class Builder {
                 uniqueObjects.put(object.getPath(), object);
             }
         }
-        return uniqueObjects.values().stream()
-//                .filter(excludeSvnObjectPredicate())
-                .collect(Collectors.toList());
+        return uniqueObjects.values();
     }
 
     private static Predicate<SvnObject> excludeSvnObjectPredicate() {

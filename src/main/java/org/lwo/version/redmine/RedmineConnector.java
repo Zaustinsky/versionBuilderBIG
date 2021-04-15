@@ -75,15 +75,6 @@ public class RedmineConnector {
         return getRedmineManager().getUserManager().getUserById(Integer.valueOf(userId)).getFullName();
     }
 
-    public static void saveAttachments(List<Attachment> attachments, Path folder) throws RedmineException, IOException {
-        for (Attachment object : attachments) {
-            String fileName = object.getFileName();
-            System.out.println((object) + "Ничего не вывелось" + fileName);
-           // Files.copy(Path.of(URI.create(object.getContentURL())), Path.of("d:/versions/3998/obj/" + fileName), StandardCopyOption.REPLACE_EXISTING);
-          //  Files.write(Path.of("d:/versions/3998/obj/" + fileName), Collections.singleton(object.getContentURL()));
-        }
-    }
-
     private List<Issue> getIssues(Set<Integer> issuesIds) throws RedmineException {
         RedmineManager issueManager = getRedmineManager();
         List<Issue> issues = new ArrayList<>();
