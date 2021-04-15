@@ -30,6 +30,7 @@ public class RtfBuilder {
                 .map(Path::toFile)
                 .filter(file -> !file.isDirectory())
                 .filter(file -> !"SPRAV".equals(file.getParentFile().getName()))
+                .filter(file -> !"obj".equals(file.getParentFile().getName()))
                 .collect(Collectors.toList());
 
         var sb = new StringBuilder();
@@ -61,7 +62,7 @@ public class RtfBuilder {
         String result = new String(rtf, "windows-1251")
                 .replace("%%DATE%%", new SimpleDateFormat("dd.MM.yyyy").format(new Date()))
                 .replace("%%VERSION%%", versionName)
-                .replace("%%CONTENT%%", sb.toString());
+                .replace("%%CONTENT%%", sb.toString().replace("JAR_FILE\\", ""));
 
         String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         Path file = Path.of(folder.toFile().getParent().concat("/LBRUS-" + versionName + "_" + date).concat(".rtf"));
