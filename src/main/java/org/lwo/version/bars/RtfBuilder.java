@@ -18,12 +18,7 @@ import java.util.stream.Collectors;
 public class RtfBuilder {
 
     public void buildFromTemplate(String versionName, Path folder) throws IOException {
-        byte[] rtf = new byte[0];
-        try {
-            rtf = Files.readAllBytes(Path.of(ClassLoader.getSystemResource("protocol.rtf").toURI()));
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+        byte[] rtf = ClassLoader.getSystemResourceAsStream("protocol.rtf").readAllBytes();
 
         //todo merge with PropertyBuilder
         List<File> files = Files.walk(folder, 2)
