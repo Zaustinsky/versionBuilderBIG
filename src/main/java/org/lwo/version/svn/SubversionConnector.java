@@ -51,7 +51,7 @@ public class SubversionConnector {
                         copyJar = true;
                         continue;
                     }
-                    if (key.startsWith("/Belinkasgroup/api")) continue;
+
                     if (key.startsWith("/Belinkasgroup/application")) continue;
                     if (key.startsWith("/Belinkasgroup/jar")) continue;
                     if (key.startsWith("/Belinkasgroup/.svn")) continue;
@@ -72,7 +72,9 @@ public class SubversionConnector {
     public SvnObject getSvnObject(long latestRevision, Long revision, SVNLogEntry entry, String key) throws SVNException {
         try {
             Collection<SVNFileRevision> fileRevisions = repository.getFileRevisions(key, null, revision, latestRevision);
-            Long latest = fileRevisions.stream().skip(fileRevisions.size() - 1).findFirst().map(SVNFileRevision::getRevision).orElse(revision);
+            Long latest = fileRevisions.stream()
+                    .skip(fileRevisions.size() - 1)
+                    .findFirst().map(SVNFileRevision::getRevision).orElse(revision);
             log.info("{} Ревизия->{} Последняя={} Объект={}", latest - revision, entry.getRevision(), latest, key);
             return new SvnObject(key, revision, latest);
         } catch (SVNException e) {
@@ -88,7 +90,7 @@ public class SubversionConnector {
     public void storeFiles(Collection<SvnObject> objects, Path folder) throws SVNException, IOException {
         for (SvnObject object : objects) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            repository.getFile(object.path, -1L, null, baos);
+            repository.getFile(object.path, -1L/*object.revision*/, null, baos);
             Files.write(getFilePath(folder, object), baos.toByteArray());
         }
 
@@ -101,7 +103,7 @@ public class SubversionConnector {
             Files.createDirectory(path);
         }
 
-        if (object.type == Type.SPRAV) {
+        if (object.type == Type.SPRAV || object.type == Type.API) {
             return Path.of(parentFolder.getParent() + "/" + fileName);
         }
 

@@ -15,5 +15,6 @@ public enum Type {
     UNKNOWN,
     JAR_FILE, // not svn
     MANUAL, // not svn,
-    SPRAV //not svn
+    SPRAV, //not svn
+    API
 }

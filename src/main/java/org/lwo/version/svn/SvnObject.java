@@ -1,6 +1,5 @@
 package org.lwo.version.svn;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -56,6 +55,8 @@ public class SvnObject {
         }
         if (path.startsWith("/Belinkasgroup/sprav")) {
             return Type.SPRAV;
+        }if (path.startsWith("/Belinkasgroup/api")) {
+            return Type.API;
         }
 
         log.error("Unknown svn object type: {}" + path);

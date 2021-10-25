@@ -72,7 +72,12 @@ public class RedmineConnector {
 
     @SneakyThrows
     public String getUserName(String userId) {
-        return getRedmineManager().getUserManager().getUserById(Integer.valueOf(userId)).getFullName();
+        try {
+            return getRedmineManager().getUserManager().getUserById(Integer.valueOf(userId)).getFullName();
+        } catch (Exception e) {
+            log.warn("User Id={} not found", userId);
+            return "Unknown user " + userId;
+        }
     }
 
     private List<Issue> getIssues(Set<Integer> issuesIds) throws RedmineException {
