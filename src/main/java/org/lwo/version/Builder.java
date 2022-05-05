@@ -15,10 +15,12 @@ import org.lwo.version.svn.SubversionConnector;
 import org.lwo.version.svn.SvnObject;
 import org.tmatesoft.svn.core.SVNException;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.security.Security;
 import java.util.*;
 import java.util.function.Predicate;
@@ -28,14 +30,14 @@ import java.util.stream.Collectors;
 public class Builder {
 
 
-    static String mainFolder = "d:/versions";
+    static String mainFolder = "d:/versions/BIG";
 
 
     public static void main(String... arg) throws RedmineException, SVNException, IOException {
-        String versionId = "4746";
-        //   Set<Integer> issueIds = new TreeSet<>(List.of(61954, 63312, 73672, 73676, 73827, 73940, 74104, 74170, 74205, 74229, 75019, 75246, 75435, 60997, 61316, 65114, 67989, 74845));
+        String versionId = "7997";
+        //Set<Integer> issueIds = new TreeSet<>(List.of(120248));
         //  Set<Integer> issueIds = Set.of(78703, 78764, 78770, 78839, 78878, 78897, 78922, 78994, 79069, 79109, 79240, 79304, 67730, 76867, 78008, 78340, 78530, 78871, 79006, 79067, 79072, 79091, 79198, 79536, 61238, 75866, 79223, 79384);
-//       Set<Integer> issueIds = Set.of(67768, 71205, 78409, 78604, 58580, 73533, 78047, 79112, 79204, 79388, 79493, 79502, 79890, 80128, 80142, 80421, 80538, 80573, 80689, 80706, 80807, 81055, 80246, 80871, 80735, 81020);
+        //  Set<Integer> issueIds = Set.of(67768, 71205, 78409, 78604, 58580, 73533, 78047, 79112, 79204, 79388, 79493, 79502, 79890, 80128, 80142, 80421, 80538, 80573, 80689, 80706, 80807, 81055, 80246, 80871, 80735, 81020);
         Set<Integer> issueIds = Set.of();
         buildVersion(versionId, issueIds);
     }
@@ -98,12 +100,26 @@ public class Builder {
         new Zipper().zip(versionName, objFolder);
         new RtfBuilder().buildFromTemplate(versionName, objFolder);
 
-    }
+        //копирую лог из общего каталога с версиями в каталог с собранной версией
+        log.info("Формируем и сохраняем лог в каталог с версией /obj");
+        copyLog(objFolder);
 
+    }
 
     public static void saveFiles(Path objFolder, SubversionConnector subversionConnector, Collection<SvnObject> uniqueObjects, List<Attachment> attachments) throws IOException, SVNException, RedmineException {
         subversionConnector.storeFiles(uniqueObjects, objFolder);
         log.info("------ Версия сохранена в {}", objFolder);
+    }
+
+    public static void copyLog(Object Path) {
+        File source = new File("d:/versions/BIG/log.log");
+
+        try {
+            Files.copy(source.toPath(), new File(Path + "/log.log").toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+        } catch (IOException e) {System.out.println("Лог не скопирован. Возможно, отсутствует в начальном каталоге");
+            e.printStackTrace();
+        }
     }
 
     private static Path createFolders(String version) throws IOException {

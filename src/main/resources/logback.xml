@@ -6,7 +6,7 @@
         </encoder>
     </appender>
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>D:/versions/log.log</file>
+        <file>D:/versions/BIG/log.log</file>
         <append>false</append>
         <encoder>
             <charset>UTF-8</charset>
