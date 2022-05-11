@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 public class Builder {
 
 
-    static String mainFolder = "d:/versions/BIG"; 
+    static String mainFolder = "d:/versions/BIG";
 
 
     public static void main(String... arg) throws RedmineException, SVNException, IOException {
