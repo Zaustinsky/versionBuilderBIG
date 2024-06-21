@@ -1,0 +1,12 @@
+D:\projects\version-build\src\main\java\org\lwo\version\bars\RtfBuilder.java
+D:\projects\version-build\src\main\java\org\lwo\version\redmine\RedmineConnector.java
+D:\projects\version-build\src\main\java\org\lwo\version\readme\ReadmeBuilder.java
+D:\projects\version-build\src\main\java\org\lwo\version\svn\SvnObject.java
+D:\projects\version-build\src\main\java\org\lwo\version\svn\Type.java
+D:\projects\version-build\src\main\java\org\lwo\version\bars\PropertiesBuilder.java
+D:\projects\version-build\src\main\java\org\lwo\version\Builder.java
+D:\projects\version-build\src\main\java\org\lwo\version\bars\Zipper.java
+D:\projects\version-build\src\main\java\org\lwo\version\readme\JarAssambly.java
+D:\projects\version-build\src\main\java\org\lwo\version\svn\JarUtils.java
+D:\projects\version-build\src\main\java\org\lwo\version\svn\SubversionConnector.java
+D:\projects\version-build\src\main\java\org\lwo\version\cli\Cli.java

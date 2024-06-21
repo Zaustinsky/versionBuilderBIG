@@ -1,0 +1,13 @@
+org\lwo\version\readme\JarAssambly.class
+org\lwo\version\svn\Type.class
+org\lwo\version\bars\Zipper$ZipDir.class
+org\lwo\version\svn\JarUtils.class
+org\lwo\version\bars\RtfBuilder.class
+org\lwo\version\redmine\RedmineConnector.class
+org\lwo\version\bars\Zipper.class
+org\lwo\version\Builder.class
+org\lwo\version\bars\PropertiesBuilder.class
+org\lwo\version\cli\Cli.class
+org\lwo\version\svn\SubversionConnector.class
+org\lwo\version\svn\SvnObject.class
+org\lwo\version\readme\ReadmeBuilder.class
