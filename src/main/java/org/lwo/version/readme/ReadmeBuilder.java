@@ -78,7 +78,7 @@ public class ReadmeBuilder {
             return issue.getAuthorName();
         }
 
-        CustomField businessAnalyst = issue.getCustomFieldByName("Бизнес-аналитик (BA)");
+        CustomField businessAnalyst = issue.getCustomFieldByName("Бизнес-аналитик (NDO)");
         if (businessAnalyst != null && businessAnalyst.getValue() != null && !businessAnalyst.getValue().isEmpty()) {
             return redmineConnector.getUserName(businessAnalyst.getValue());
         }
